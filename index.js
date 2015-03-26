@@ -1,5 +1,8 @@
 var utils = require('./lib/utils.js');
-var req = require('fetch').fetchUrl;
+/** nytimes and many other wesite needs automatic cookie
+  handling for statusCode 301
+  **/
+var req = require('request').defaults({jar: true});
 var url = require('url');
 var cheerio = require('cheerio');
 
@@ -90,9 +93,10 @@ var read = module.exports = function(html, options, callback) {
       nodesToRemove: 'meta,iframe,noscript,style,aside,object,script'
     };
   }
-
   if (!html.match(/^\s*</)) {
-    req(html, options, function(err, res, body) {
+    options.url = html;
+    var r = req.get(options, function(err, res, body) {
+      r.end();
       if (err) {
         return callback(err);
       }
